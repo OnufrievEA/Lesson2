@@ -11,16 +11,15 @@ import android.widget.TextView;
 public class WeatherActivity extends AppCompatActivity {
 
     public static final String CITY = "city";
-    private TextView cityTV;
-    private ImageButton settingsBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
-        settingsBtn = findViewById(R.id.settingsBtn);
+        ImageButton settingsBtn = findViewById(R.id.settingsBtn);
         settingsBtn.setOnClickListener(settingsBtnListener);
-        cityTV = findViewById(R.id.cityTV);
+        TextView cityTV = findViewById(R.id.cityTV);
+
         Intent intent = getIntent();
         String city = intent.getStringExtra(CITY);
         cityTV.setText(city);
