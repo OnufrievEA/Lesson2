@@ -21,6 +21,7 @@ public class WeatherActivity extends AppCompatActivity {
         settingsBtn = findViewById(R.id.settingsBtn);
         settingsBtn.setOnClickListener(settingsBtnListener);
         cityTV = findViewById(R.id.cityTV);
+        
         Intent intent = getIntent();
         String city = intent.getStringExtra(CITY);
         cityTV.setText(city);
