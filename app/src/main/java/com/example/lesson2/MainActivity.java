@@ -10,14 +10,13 @@ import android.widget.EditText;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button continueBtn;
     private EditText cityET;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        continueBtn = findViewById(R.id.continueBtn);
+        Button continueBtn = findViewById(R.id.continueBtn);
         cityET = findViewById(R.id.cityET);
         continueBtn.setOnClickListener(continueBtnListener);
     }
