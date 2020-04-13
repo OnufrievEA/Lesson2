@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Weather</string>
+    <string name="city_hint">Enter your city</string>
+    <string name="continue_work">Continue</string>
+    <string name="moscow">Moscow</string>
+    <string name="temperature">Temperature</string>
+    <string name="pressure">Pressure</string>
+    <string name="wind_speed">Wind Speed</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+    <string name="theme">Theme</string>
+    <string name="settings">Settings</string>
+</resources>
