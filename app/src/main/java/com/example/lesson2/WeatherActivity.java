@@ -22,7 +22,7 @@ public class WeatherActivity extends AppCompatActivity {
         setContentView(R.layout.activity_weather);
 
         ImageButton settingsBtn = findViewById(R.id.settingsBtn);
-        Button searchBtn = findViewById(R.id.infoBtn);
+        Button searchBtn = findViewById(R.id.searchBtn);
         TextView cityTV = findViewById(R.id.cityTV);
 
         settingsBtn.setOnClickListener(settingsBtnListener);
