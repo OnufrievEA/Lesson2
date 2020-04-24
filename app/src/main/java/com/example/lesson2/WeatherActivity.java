@@ -20,36 +20,22 @@ public class WeatherActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
+        city = getIntent().getStringExtra(CITY);
 
-        ImageButton settingsBtn = findViewById(R.id.settingsBtn);
-        Button searchBtn = findViewById(R.id.searchBtn);
-        TextView cityTV = findViewById(R.id.cityTV);
+        DetailFragment frag = (DetailFragment) getSupportFragmentManager().findFragmentById(R.id.detail_frag);
+        frag.setCity(city);
 
-        settingsBtn.setOnClickListener(settingsBtnListener);
-        searchBtn.setOnClickListener(searchBtnListener);
 
-        Intent intent = getIntent();
-        city = intent.getStringExtra(CITY);
-        cityTV.setText(city);
-        searchBtn.setText("Search " + city);
+//        ImageButton settingsBtn = findViewById(R.id.settingsBtn);
+//        Button searchBtn = findViewById(R.id.searchBtn);
+//        TextView cityTV = findViewById(R.id.cityTV);
+//
+//        settingsBtn.setOnClickListener(settingsBtnListener);
+//        searchBtn.setOnClickListener(searchBtnListener);
+//
+//        Intent intent = getIntent();
+//        city = intent.getStringExtra(CITY);
+//        cityTV.setText(city);
+//        searchBtn.setText("Search " + city);
     }
-
-    View.OnClickListener settingsBtnListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Intent intent = new Intent(WeatherActivity.this, SettingsActivity.class);
-            startActivity(intent);
-        }
-    };
-
-    View.OnClickListener searchBtnListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
-            intent.putExtra(SearchManager.QUERY, city);
-            if (intent.resolveActivity(getPackageManager()) != null) {
-                startActivity(intent);
-            }
-        }
-    };
 }
