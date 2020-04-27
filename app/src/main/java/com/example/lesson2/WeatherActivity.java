@@ -1,14 +1,9 @@
 package com.example.lesson2;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.SearchManager;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 
 public class WeatherActivity extends AppCompatActivity {
@@ -38,4 +33,5 @@ public class WeatherActivity extends AppCompatActivity {
 //        cityTV.setText(city);
 //        searchBtn.setText("Search " + city);
     }
+
 }
