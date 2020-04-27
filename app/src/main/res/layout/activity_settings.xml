@@ -7,6 +7,7 @@
     tools:context=".SettingsActivity">
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
@@ -16,6 +17,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <CheckBox
+            android:id="@+id/temperature"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
@@ -23,6 +25,7 @@
             android:textSize="@dimen/text_size" />
 
         <CheckBox
+            android:id="@+id/windSpeed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
@@ -30,6 +33,7 @@
             android:textSize="@dimen/text_size" />
 
         <CheckBox
+            android:id="@+id/pressure"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
@@ -48,18 +52,19 @@
             android:layout_height="wrap_content">
 
             <RadioButton
+                android:id="@+id/dark"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/theme_dark"
                 android:textSize="@dimen/text_size" />
 
             <RadioButton
+                android:id="@+id/light"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/theme_light"
                 android:textSize="@dimen/text_size" />
         </RadioGroup>
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
