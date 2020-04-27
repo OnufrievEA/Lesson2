@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.lesson2.data.Weather;
+import com.example.lesson2.data.WeatherSource;
 
 public class DetailFragment extends Fragment {
 
@@ -26,47 +28,38 @@ public class DetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View resView = inflater.inflate(R.layout.fragment_detail, container, false);
-        initRecyclerView(resView);
+
+        WeatherSource sourceData = new WeatherSource(getResources());
+        initRecyclerView(resView, sourceData.initData());
+
         if (savedInstanceState != null) {
             this.city = savedInstanceState.getString(CITY);
         }
+
         return resView;
     }
 
-    private void initRecyclerView(View resView) {
+    private void initRecyclerView(View resView, WeatherSource sourceData) {
         RecyclerView weatherRecycler = resView.findViewById(R.id.weather_recycler);
 
-        String[] weekDays = new String[Weather.weatherArray.length];
-        String[] dates = new String[weekDays.length];
-        int[] imageResourceIds = new int[weekDays.length];
-        int[] dayTemperatures = new int[weekDays.length];
-        int[] nightTemperatures = new int[weekDays.length];
-        String[] descriptions = new String[weekDays.length];
+        weatherRecycler.setHasFixedSize(true);
 
-        for (int i = 0; i < weekDays.length; i++) {
-            weekDays[i] = Weather.weatherArray[i].getWeekDay();
-            dates[i] = Weather.weatherArray[i].getDate();
-            imageResourceIds[i] = Weather.weatherArray[i].getImageResourceId();
-            dayTemperatures[i] = Weather.weatherArray[i].getDayTemperature();
-            nightTemperatures[i] = Weather.weatherArray[i].getNightTemperature();
-            descriptions[i] = Weather.weatherArray[i].getDescription();
-        }
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), RecyclerView.HORIZONTAL, false);
+        weatherRecycler.setLayoutManager(layoutManager);
 
-        WeatherAdapter adapter = new WeatherAdapter(weekDays, dates, imageResourceIds, dayTemperatures, nightTemperatures, descriptions);
+        WeatherAdapter adapter = new WeatherAdapter(sourceData);
+        weatherRecycler.setAdapter(adapter);
         adapter.setListener(new WeatherAdapter.Listener() {
             @Override
             public void onClick(int position) {
-                Toast.makeText(getActivity(), String.valueOf(position), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), String.format("Позиция - %d", position), Toast.LENGTH_SHORT).show();
             }
         });
-        weatherRecycler.setAdapter(adapter);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        layoutManager.setOrientation(RecyclerView.HORIZONTAL);
-        weatherRecycler.setLayoutManager(layoutManager);
-    }
 
-    public void setCity(String city) {
-        this.city = city;
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(getActivity(),  LinearLayoutManager.HORIZONTAL);
+        itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator));
+        weatherRecycler.addItemDecoration(itemDecoration);
+
     }
 
     @Override
@@ -85,5 +78,9 @@ public class DetailFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString("city", city);
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 }

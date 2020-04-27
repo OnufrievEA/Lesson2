@@ -5,11 +5,11 @@ public class Weather {
     private String weekDay;
     private String date;
     private int imageResourceId;
-    private int dayTemperature;
-    private int nightTemperature;
+    private String dayTemperature;
+    private String nightTemperature;
     private String description;
 
-    public Weather(String weekDay, String date, int imageResourceId, int dayTemperature, int nightTemperature, String description) {
+    public Weather(String weekDay, String date, int imageResourceId, String dayTemperature, String nightTemperature, String description) {
         this.weekDay = weekDay;
         this.date = date;
         this.imageResourceId = imageResourceId;
@@ -30,11 +30,11 @@ public class Weather {
         return imageResourceId;
     }
 
-    public int getDayTemperature() {
+    public String getDayTemperature() {
         return dayTemperature;
     }
 
-    public int getNightTemperature() {
+    public String getNightTemperature() {
         return nightTemperature;
     }
 
