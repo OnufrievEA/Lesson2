@@ -1,24 +1,35 @@
 package com.example.lesson2;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 
-public class MainActivity extends AppCompatActivity implements CityFragment.Listener {
+public class MainActivity extends BaseActivity implements CityFragment.Listener {
+
+    private static final int SETTING_CODE = 88;
+
+    private View fragmentContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        fragmentContainer = findViewById(R.id.fragment_container);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
     }
 
     @Override
     public void onContinueBtnClicked(String city) {
-        View fragmentContainer = findViewById(R.id.fragment_container);
         if (fragmentContainer != null) {
             DetailFragment detailFragment = new DetailFragment();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -30,7 +41,35 @@ public class MainActivity extends AppCompatActivity implements CityFragment.List
         } else {
             Intent intent = new Intent(MainActivity.this, WeatherActivity.class);
             intent.putExtra(WeatherActivity.CITY, city);
-            startActivity(intent);
+            startActivityForResult(intent, SETTING_CODE);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (fragmentContainer != null) {
+            getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_open_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivityForResult(intent, SETTING_CODE);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SETTING_CODE){
+            recreate();
         }
     }
 

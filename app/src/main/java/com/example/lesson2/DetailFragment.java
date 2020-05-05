@@ -1,6 +1,11 @@
 package com.example.lesson2;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -8,15 +13,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.example.lesson2.data.Weather;
 import com.example.lesson2.data.WeatherSource;
 
 public class DetailFragment extends Fragment {
@@ -56,7 +52,7 @@ public class DetailFragment extends Fragment {
             }
         });
 
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(getActivity(),  LinearLayoutManager.HORIZONTAL);
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(getActivity(), LinearLayoutManager.HORIZONTAL);
         itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator));
         weatherRecycler.addItemDecoration(itemDecoration);
 
@@ -69,9 +65,6 @@ public class DetailFragment extends Fragment {
         if (view != null) {
             TextView cityTV = (TextView) view.findViewById(R.id.cityTV);
             cityTV.setText(city);
-            Button searchBtn = (Button) view.findViewById(R.id.searchBtn);
-            searchBtn.setText("Search " + city);
-            ImageButton settingsBtn = (ImageButton) view.findViewById(R.id.settingsBtn);
         }
     }
 
@@ -81,6 +74,8 @@ public class DetailFragment extends Fragment {
     }
 
     public void setCity(String city) {
-        this.city = city;
+        this.city = city.substring(0,1).toUpperCase() + city.substring(1).toLowerCase();
     }
+
+
 }
