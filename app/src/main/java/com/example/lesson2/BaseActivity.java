@@ -28,7 +28,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         // Работаем через специальный класс сохранения и чтения настроек
         SharedPreferences sharedPref = getSharedPreferences(NameSharedPreference, MODE_PRIVATE);
         //Прочитать тему, если настройка не найдена - взять по умолчанию true
-        return sharedPref.getBoolean(IsDarkTheme, false);
+        return sharedPref.getBoolean(IsDarkTheme, true);
     }
 
     // Сохранение настроек

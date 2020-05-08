@@ -17,7 +17,7 @@ import com.google.android.material.textfield.TextInputLayout;
 public class CityFragment extends Fragment {
 
     private static final String CITY = "city";
-    private String city = "";
+    private String city = "Москва";
 
     private Listener listener;
 

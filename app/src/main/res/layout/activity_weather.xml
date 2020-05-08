@@ -10,7 +10,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    <fragment
         android:id="@+id/detail_frag"
         android:name="com.example.lesson2.DetailFragment"
         android:layout_width="match_parent"

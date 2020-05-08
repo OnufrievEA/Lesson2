@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,8 +19,16 @@ import com.example.lesson2.data.WeatherSource;
 
 public class DetailFragment extends Fragment {
 
+
     private static final String CITY = "city";
-    private String city;
+    private static String city;
+    private static final String WEATHER_API_KEY = "ee84ad36add2f9b733e58aac7389c3e8";
+
+    //    private EditText temperature;
+//    private EditText pressure;
+//    private EditText humidity;
+//    private EditText windSpeed;
+    private Button refresh;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,6 +44,32 @@ public class DetailFragment extends Fragment {
 
         return resView;
     }
+
+    private void init(View v) {
+        TextView cityTV = v.findViewById(R.id.cityTV);
+        cityTV.setText(city);
+//        temperature = v.findViewById(R.id.textTemprature);
+//        pressure = v.findViewById(R.id.textPressure);
+//        humidity = v.findViewById(R.id.textHumidity);
+//        windSpeed = v.findViewById(R.id.textWindspeed);
+        refresh = v.findViewById(R.id.refresh);
+        refresh.setOnClickListener(clickListener);
+    }
+
+    View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            try {
+                String WEATHER_URL = String.format("https://api.openweathermap.org/data/2.5/weather?q=%s,RU&appid=%s", city, WEATHER_API_KEY);
+                WeatherBroadcaster weatherBroadcaster = new WeatherBroadcaster();
+                weatherBroadcaster.broadcastWeather(WEATHER_URL, getView());
+            } catch (Exception e) {
+                getActivity().finish();
+            }
+
+        }
+    };
+
 
     private void initRecyclerView(View resView, WeatherSource sourceData) {
         RecyclerView weatherRecycler = resView.findViewById(R.id.weather_recycler);
@@ -63,8 +99,7 @@ public class DetailFragment extends Fragment {
         super.onStart();
         View view = getView();
         if (view != null) {
-            TextView cityTV = (TextView) view.findViewById(R.id.cityTV);
-            cityTV.setText(city);
+            init(view);
         }
     }
 
@@ -74,7 +109,7 @@ public class DetailFragment extends Fragment {
     }
 
     public void setCity(String city) {
-        this.city = city.substring(0,1).toUpperCase() + city.substring(1).toLowerCase();
+        this.city = city.substring(0, 1).toUpperCase() + city.substring(1).toLowerCase();
     }
 
 
