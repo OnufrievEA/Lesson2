@@ -20,7 +20,15 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class WeatherBroadcaster {
 
+    private cityListener cityListener;
 
+    interface cityListener {
+        void action();
+    }
+
+    public void setCityListener(cityListener cityListener) {
+        this.cityListener = cityListener;
+    }
 
     public void broadcastWeather(String url, final View view) {
         try {
@@ -48,11 +56,12 @@ public class WeatherBroadcaster {
                             }
                         });
                     } catch (Exception e) {
-                        System.out.println("неправильный город");
-                        e.printStackTrace();
+                        cityListener.action();
                     } finally {
                         if (null != urlConnection) {
                             urlConnection.disconnect();
+                        } else {
+                            cityListener.action();
                         }
                     }
                 }
