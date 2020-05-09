@@ -1,37 +1,76 @@
 package com.example.lesson2;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 
-public class MainActivity extends AppCompatActivity {
 
-    private EditText cityET;
+public class MainActivity extends BaseActivity implements CityFragment.Listener {
+
+    private static final int SETTING_CODE = 88;
+
+    private View fragmentContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button continueBtn = findViewById(R.id.continueBtn);
-        cityET = findViewById(R.id.cityET);
-        continueBtn.setOnClickListener(continueBtnListener);
+
+        fragmentContainer = findViewById(R.id.fragment_container);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
     }
 
-    View.OnClickListener continueBtnListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
+    @Override
+    public void onContinueBtnClicked(String city) {
+        if (fragmentContainer != null) {
+            DetailFragment detailFragment = new DetailFragment();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            detailFragment.setCity(city);
+            ft.replace(R.id.fragment_container, detailFragment);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.addToBackStack(null);
+            ft.commit();
+        } else {
             Intent intent = new Intent(MainActivity.this, WeatherActivity.class);
-            String message = String.valueOf(cityET.getText());
-            intent.putExtra(WeatherActivity.CITY, message);
-            startActivity(intent);
+            intent.putExtra(WeatherActivity.CITY, city);
+            startActivityForResult(intent, SETTING_CODE);
         }
-    };
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (fragmentContainer != null) {
+            getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_open_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivityForResult(intent, SETTING_CODE);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SETTING_CODE) {
+            recreate();
+        }
+    }
 
 }
