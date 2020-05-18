@@ -2,8 +2,6 @@ package com.example.lesson2;
 
 import android.os.Build;
 import android.os.Handler;
-import android.view.View;
-import android.widget.EditText;
 
 import androidx.annotation.RequiresApi;
 
@@ -18,19 +16,20 @@ import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class WeatherBroadcaster {
+public class WeatherLoader {
 
     private cityListener cityListener;
 
     interface cityListener {
-        void action();
+        void createDialog();
+        void displayWeather(WeatherRequest weatherRequest);
     }
 
     public void setCityListener(cityListener cityListener) {
         this.cityListener = cityListener;
     }
 
-    public void broadcastWeather(String url, final View view) {
+    public void getWeather(String url) {
         try {
             final URL uri = new URL(url);
             final Handler handler = new Handler(); // Запоминаем основной поток
@@ -52,16 +51,16 @@ public class WeatherBroadcaster {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                displayWeather(view, weatherRequest);
+                                cityListener.displayWeather(weatherRequest);
                             }
                         });
                     } catch (Exception e) {
-                        cityListener.action();
+                        cityListener.createDialog();
                     } finally {
                         if (null != urlConnection) {
                             urlConnection.disconnect();
                         } else {
-                            cityListener.action();
+                            cityListener.createDialog();
                         }
                     }
                 }
@@ -74,16 +73,5 @@ public class WeatherBroadcaster {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private String getLines(BufferedReader in) {
         return in.lines().collect(Collectors.joining("\n"));
-    }
-
-    private void displayWeather(View view, WeatherRequest weatherRequest) {
-        EditText temperature = view.findViewById(R.id.textTemprature);
-        EditText pressure = view.findViewById(R.id.textPressure);
-        EditText humidity = view.findViewById(R.id.textHumidity);
-        EditText windSpeed = view.findViewById(R.id.textWindspeed);
-        temperature.setText(String.format("%f2", weatherRequest.getMain().getTemp()));
-        pressure.setText(String.format("%d", weatherRequest.getMain().getPressure()));
-        humidity.setText(String.format("%d", weatherRequest.getMain().getHumidity()));
-        windSpeed.setText(String.format("%d", weatherRequest.getWind().getSpeed()));
     }
 }

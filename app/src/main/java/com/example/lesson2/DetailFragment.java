@@ -1,11 +1,11 @@
 package com.example.lesson2;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,11 +17,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lesson2.data.WeatherSource;
+import com.example.lesson2.weather_model.WeatherRequest;
 
 public class DetailFragment extends Fragment {
 
-
-    private Activity myActivity = getActivity();
     private static final String CITY = "city";
     private static String city;
     private static final String WEATHER_API_KEY = "ee84ad36add2f9b733e58aac7389c3e8";
@@ -53,23 +52,22 @@ public class DetailFragment extends Fragment {
     View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            try {
-                String WEATHER_URL = String.format("https://api.openweathermap.org/data/2.5/weather?q=%s,RU&appid=%s", city, WEATHER_API_KEY);
-                WeatherBroadcaster weatherBroadcaster = new WeatherBroadcaster();
-                weatherBroadcaster.setCityListener(new WeatherBroadcaster.cityListener() {
-                    @Override
-                    public void action() {
-                        FragmentManager manager = getFragmentManager();
-                        myDialogFragment myDialogFragment = new myDialogFragment();
-                        myDialogFragment.show(manager, "myDialog");
+            String WEATHER_URL = String.format("https://api.openweathermap.org/data/2.5/weather?q=%s,RU&appid=%s", city, WEATHER_API_KEY);
+            WeatherLoader weatherLoader = new WeatherLoader();
+            weatherLoader.setCityListener(new WeatherLoader.cityListener() {
+                @Override
+                public void createDialog() {
+                    FragmentManager manager = getFragmentManager();
+                    myDialogFragment myDialogFragment = new myDialogFragment();
+                    myDialogFragment.show(manager, "myDialog");
+                }
 
-                    }
-                });
-                weatherBroadcaster.broadcastWeather(WEATHER_URL, getView());
-            } catch (Exception e) {
-                getActivity().finish();
-            }
-
+                @Override
+                public void displayWeather(WeatherRequest weatherRequest) {
+                    DetailFragment.this.displayWeather(weatherRequest);
+                }
+            });
+            weatherLoader.getWeather(WEATHER_URL);
         }
     };
 
@@ -94,7 +92,6 @@ public class DetailFragment extends Fragment {
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getActivity(), LinearLayoutManager.HORIZONTAL);
         itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator));
         weatherRecycler.addItemDecoration(itemDecoration);
-
     }
 
     @Override
@@ -113,5 +110,17 @@ public class DetailFragment extends Fragment {
 
     public void setCity(String city) {
         this.city = city.substring(0, 1).toUpperCase() + city.substring(1).toLowerCase();
+    }
+
+    private void displayWeather(WeatherRequest weatherRequest) {
+        View view = getView();
+        EditText temperature = view.findViewById(R.id.textTemprature);
+        EditText pressure = view.findViewById(R.id.textPressure);
+        EditText humidity = view.findViewById(R.id.textHumidity);
+        EditText windSpeed = view.findViewById(R.id.textWindspeed);
+        temperature.setText(String.format("%f2", weatherRequest.getMain().getTemp()));
+        pressure.setText(String.format("%d", weatherRequest.getMain().getPressure()));
+        humidity.setText(String.format("%d", weatherRequest.getMain().getHumidity()));
+        windSpeed.setText(String.format("%d", weatherRequest.getWind().getSpeed()));
     }
 }

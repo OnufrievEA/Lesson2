@@ -14,4 +14,11 @@
     <string name="dark_theme">Тёмная тема</string>
     <string name="humidity">Влажность</string>
     <string name="refresh">Обновить</string>
+
+    <string name="nav_support">Помощь</string>
+    <string name="nav_help">Подсказки</string>
+    <string name="nav_feedback">Оставить отзыв</string>
+
+    <string name="nav_open_drawer">Open navigation drawer</string>
+    <string name="nav_close_drawer">Close navigation drawer</string>
 </resources>

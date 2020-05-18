@@ -2,15 +2,19 @@ package com.example.lesson2;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.google.android.material.navigation.NavigationView;
 
 
-public class WeatherActivity extends BaseActivity {
+public class WeatherActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String CITY = "city";
     private static String city;
@@ -24,41 +28,23 @@ public class WeatherActivity extends BaseActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,
+                drawer,
+                toolbar,
+                R.string.nav_open_drawer,
+                R.string.nav_close_drawer);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+
         city = getIntent().getStringExtra(CITY);
 
         DetailFragment frag = (DetailFragment) getSupportFragmentManager().findFragmentById(R.id.detail_frag);
         frag.setCity(city);
-
-
-//        ImageButton settingsBtn = findViewById(R.id.settingsBtn);
-//        Button searchBtn = findViewById(R.id.searchBtn);
-//        TextView cityTV = findViewById(R.id.cityTV);
-//
-//        settingsBtn.setOnClickListener(settingsBtnListener);
-//        searchBtn.setOnClickListener(searchBtnListener);
-//
-//        Intent intent = getIntent();
-//        city = intent.getStringExtra(CITY);
-//        cityTV.setText(city);
-//        searchBtn.setText("Search " + city);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_open_settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivityForResult(intent, SETTING_CODE);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override
@@ -70,4 +56,30 @@ public class WeatherActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+        int id = item.getItemId();
+        Intent intent = null;
+
+        switch (id) {
+            case R.id.nav_settings:
+                intent = new Intent(this, SettingsActivity.class);
+                break;
+            case R.id.nav_help:
+                intent = new Intent(this, HelpActivity.class);
+                break;
+            case R.id.nav_feedback:
+                intent = new Intent(this, FeedbackActivity.class);
+                break;
+        }
+
+        if (intent != null) {
+            startActivity(intent);
+        }
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
 }
