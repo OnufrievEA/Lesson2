@@ -56,15 +56,15 @@ public class DetailFragment extends Fragment {
             WeatherLoader weatherLoader = new WeatherLoader();
             weatherLoader.setCityListener(new WeatherLoader.cityListener() {
                 @Override
-                public void createDialog() {
+                public void negativeAction() {
                     FragmentManager manager = getFragmentManager();
                     myDialogFragment myDialogFragment = new myDialogFragment();
                     myDialogFragment.show(manager, "myDialog");
                 }
 
                 @Override
-                public void displayWeather(WeatherRequest weatherRequest) {
-                    DetailFragment.this.displayWeather(weatherRequest);
+                public void positiveAction(WeatherRequest weatherRequest) {
+                    displayWeather(weatherRequest);
                 }
             });
             weatherLoader.getWeather(WEATHER_URL);

@@ -21,8 +21,8 @@ public class WeatherLoader {
     private cityListener cityListener;
 
     interface cityListener {
-        void createDialog();
-        void displayWeather(WeatherRequest weatherRequest);
+        void negativeAction();
+        void positiveAction(WeatherRequest weatherRequest);
     }
 
     public void setCityListener(cityListener cityListener) {
@@ -51,16 +51,16 @@ public class WeatherLoader {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                cityListener.displayWeather(weatherRequest);
+                                cityListener.positiveAction(weatherRequest);
                             }
                         });
                     } catch (Exception e) {
-                        cityListener.createDialog();
+                        cityListener.negativeAction();
                     } finally {
                         if (null != urlConnection) {
                             urlConnection.disconnect();
                         } else {
-                            cityListener.createDialog();
+                            cityListener.negativeAction();
                         }
                     }
                 }
