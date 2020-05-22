@@ -2,6 +2,7 @@ package com.example.lesson2;
 
 import android.os.Build;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
@@ -12,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -21,7 +23,8 @@ public class WeatherLoader {
     private cityListener cityListener;
 
     interface cityListener {
-        void negativeAction();
+        void negativeAction(String message);
+
         void positiveAction(WeatherRequest weatherRequest);
     }
 
@@ -29,7 +32,7 @@ public class WeatherLoader {
         this.cityListener = cityListener;
     }
 
-    public void getWeather(String url) {
+    public void getWeather(String url, final String cityErrorMsg, final String connectionErrorMsg) {
         try {
             final URL uri = new URL(url);
             final Handler handler = new Handler(); // Запоминаем основной поток
@@ -54,19 +57,18 @@ public class WeatherLoader {
                                 cityListener.positiveAction(weatherRequest);
                             }
                         });
+                    } catch (UnknownHostException e) {
+                        cityListener.negativeAction(connectionErrorMsg);
                     } catch (Exception e) {
-                        cityListener.negativeAction();
+                        cityListener.negativeAction(cityErrorMsg);
                     } finally {
-                        if (null != urlConnection) {
+                        if (urlConnection != null) {
                             urlConnection.disconnect();
-                        } else {
-                            cityListener.negativeAction();
                         }
                     }
                 }
             }).start();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
         }
     }
 

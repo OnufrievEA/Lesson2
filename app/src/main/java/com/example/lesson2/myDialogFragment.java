@@ -9,16 +9,27 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 public class myDialogFragment extends DialogFragment {
+
+    private String message;
+
+    public myDialogFragment() {
+    }
+
+    public myDialogFragment(String message) {
+        this.message = message;
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Ошибка")
-                .setMessage("Неправильный город или ошибка соединения")
+        builder.setTitle(R.string.error)
+                .setMessage(message)
+                .setIcon(android.R.drawable.stat_notify_error)
                 .setPositiveButton("Ок", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // Закрываем окно
-                        dialog.cancel();
+                        dismiss();
                     }
                 });
         return builder.create();

@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +23,9 @@ public class DetailFragment extends Fragment {
     private static final String CITY = "city";
     private static String city;
     private static final String WEATHER_API_KEY = "ee84ad36add2f9b733e58aac7389c3e8";
+
+    private String cityErrorMsg;
+    private String connectionErrorMsg;
 
     private Button refresh;
 
@@ -38,6 +40,9 @@ public class DetailFragment extends Fragment {
         if (savedInstanceState != null) {
             this.city = savedInstanceState.getString(CITY);
         }
+
+        cityErrorMsg = getString(R.string.city_error);
+        connectionErrorMsg = getString(R.string.connection_error);
 
         return resView;
     }
@@ -56,10 +61,9 @@ public class DetailFragment extends Fragment {
             WeatherLoader weatherLoader = new WeatherLoader();
             weatherLoader.setCityListener(new WeatherLoader.cityListener() {
                 @Override
-                public void negativeAction() {
-                    FragmentManager manager = getFragmentManager();
-                    myDialogFragment myDialogFragment = new myDialogFragment();
-                    myDialogFragment.show(manager, "myDialog");
+                public void negativeAction(String message) {
+                    myDialogFragment myDialogFragment = new myDialogFragment(message);
+                    myDialogFragment.show(getFragmentManager(), "myDialog");
                 }
 
                 @Override
@@ -67,7 +71,8 @@ public class DetailFragment extends Fragment {
                     displayWeather(weatherRequest);
                 }
             });
-            weatherLoader.getWeather(WEATHER_URL);
+            weatherLoader.getWeather(WEATHER_URL, cityErrorMsg, connectionErrorMsg);
+
         }
     };
 
@@ -118,9 +123,15 @@ public class DetailFragment extends Fragment {
         EditText pressure = view.findViewById(R.id.textPressure);
         EditText humidity = view.findViewById(R.id.textHumidity);
         EditText windSpeed = view.findViewById(R.id.textWindspeed);
-        temperature.setText(String.format("%f2", weatherRequest.getMain().getTemp()));
+        ThermometerView thermometerView = view.findViewById(R.id.myTherm);
+        temperature.setText(String.valueOf(getCelsius(weatherRequest.getMain().getTemp())));
         pressure.setText(String.format("%d", weatherRequest.getMain().getPressure()));
         humidity.setText(String.format("%d", weatherRequest.getMain().getHumidity()));
         windSpeed.setText(String.format("%d", weatherRequest.getWind().getSpeed()));
+        thermometerView.displayTemp(getCelsius(weatherRequest.getMain().getTemp()));
+    }
+
+    private int getCelsius(float kelvin) {
+        return (int) (kelvin - 273.15);
     }
 }

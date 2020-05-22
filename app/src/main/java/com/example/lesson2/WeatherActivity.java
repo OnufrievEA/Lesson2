@@ -75,7 +75,7 @@ public class WeatherActivity extends BaseActivity implements NavigationView.OnNa
         }
 
         if (intent != null) {
-            startActivity(intent);
+            startActivityForResult(intent, SETTING_CODE);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
