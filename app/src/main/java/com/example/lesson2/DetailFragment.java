@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -35,6 +36,15 @@ public class DetailFragment extends Fragment {
     private String connectionErrorMsg;
 
     private Button refresh;
+    private Handler handler;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        HandlerThread handlerThread = new HandlerThread("HandlerThread");
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -71,27 +81,28 @@ public class DetailFragment extends Fragment {
             weatherLoader.setCityListener(new WeatherLoader.cityListener() {
                 @Override
                 public void negativeAction(String message) {
-                    myDialogFragment myDialogFragment = new myDialogFragment(message);
-                    myDialogFragment.show(getFragmentManager(), "myDialog");
+                    MyDialogFragment myDialogFragment = new MyDialogFragment(message);
+                    if (!MyDialogFragment.isDialogShown()) {
+                        myDialogFragment.show(getFragmentManager(), "myDialog");
+                    }
+
                 }
             });
 
-            final Handler handler = new Handler();
-            new Thread(new Runnable() {
+
+            handler.post(new Runnable() {
                 @Override
                 public void run() {
                     BufferedReader resBufferedReader = weatherLoader.getWeather(WEATHER_URL, cityErrorMsg, connectionErrorMsg);
                     final WeatherRequest resultWeatherRequest = weatherParser.parseData(resBufferedReader);
-                    if (resultWeatherRequest != null) {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                displayWeather(resultWeatherRequest);
-                            }
-                        });
-                    }
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            displayWeather(resultWeatherRequest);
+                        }
+                    });
                 }
-            }).start();
+            });
         }
     };
 
@@ -137,17 +148,19 @@ public class DetailFragment extends Fragment {
     }
 
     private void displayWeather(WeatherRequest weatherRequest) {
-        View view = getView();
-        EditText temperature = view.findViewById(R.id.textTemprature);
-        EditText pressure = view.findViewById(R.id.textPressure);
-        EditText humidity = view.findViewById(R.id.textHumidity);
-        EditText windSpeed = view.findViewById(R.id.textWindspeed);
-        ThermometerView thermometerView = view.findViewById(R.id.myTherm);
-        temperature.setText(String.valueOf(getCelsius(weatherRequest.getMain().getTemp())));
-        pressure.setText(String.format("%d", weatherRequest.getMain().getPressure()));
-        humidity.setText(String.format("%d", weatherRequest.getMain().getHumidity()));
-        windSpeed.setText(String.format("%.2f", weatherRequest.getWind().getSpeed()));
-        thermometerView.displayTemp(getCelsius(weatherRequest.getMain().getTemp()));
+        if (weatherRequest != null) {
+            View view = getView();
+            EditText temperature = view.findViewById(R.id.textTemprature);
+            EditText pressure = view.findViewById(R.id.textPressure);
+            EditText humidity = view.findViewById(R.id.textHumidity);
+            EditText windSpeed = view.findViewById(R.id.textWindspeed);
+            ThermometerView thermometerView = view.findViewById(R.id.myTherm);
+            temperature.setText(String.valueOf(getCelsius(weatherRequest.getMain().getTemp())));
+            pressure.setText(String.format("%d", weatherRequest.getMain().getPressure()));
+            humidity.setText(String.format("%d", weatherRequest.getMain().getHumidity()));
+            windSpeed.setText(String.format("%.2f", weatherRequest.getWind().getSpeed()));
+            thermometerView.displayTemp(getCelsius(weatherRequest.getMain().getTemp()));
+        }
     }
 
     private int getCelsius(float kelvin) {
