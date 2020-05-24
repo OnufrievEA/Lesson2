@@ -1,6 +1,9 @@
 package com.example.lesson2;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,6 +21,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lesson2.data.WeatherSource;
 import com.example.lesson2.weather_model.WeatherRequest;
+
+import java.io.BufferedReader;
+
 
 public class DetailFragment extends Fragment {
 
@@ -55,24 +62,36 @@ public class DetailFragment extends Fragment {
     }
 
     View.OnClickListener clickListener = new View.OnClickListener() {
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void onClick(View v) {
-            String WEATHER_URL = String.format("https://api.openweathermap.org/data/2.5/weather?q=%s,RU&appid=%s", city, WEATHER_API_KEY);
-            WeatherLoader weatherLoader = new WeatherLoader();
+            final String WEATHER_URL = String.format("https://api.openweathermap.org/data/2.5/weather?q=%s,RU&appid=%s", city, WEATHER_API_KEY);
+            final WeatherLoader weatherLoader = new WeatherLoader();
+            final WeatherParser weatherParser = new WeatherParser();
             weatherLoader.setCityListener(new WeatherLoader.cityListener() {
                 @Override
                 public void negativeAction(String message) {
                     myDialogFragment myDialogFragment = new myDialogFragment(message);
                     myDialogFragment.show(getFragmentManager(), "myDialog");
                 }
-
-                @Override
-                public void positiveAction(WeatherRequest weatherRequest) {
-                    displayWeather(weatherRequest);
-                }
             });
-            weatherLoader.getWeather(WEATHER_URL, cityErrorMsg, connectionErrorMsg);
 
+            final Handler handler = new Handler();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    BufferedReader resBufferedReader = weatherLoader.getWeather(WEATHER_URL, cityErrorMsg, connectionErrorMsg);
+                    final WeatherRequest resultWeatherRequest = weatherParser.parseData(resBufferedReader);
+                    if (resultWeatherRequest != null) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                displayWeather(resultWeatherRequest);
+                            }
+                        });
+                    }
+                }
+            }).start();
         }
     };
 
@@ -114,7 +133,7 @@ public class DetailFragment extends Fragment {
     }
 
     public void setCity(String city) {
-        this.city = city.substring(0, 1).toUpperCase() + city.substring(1).toLowerCase();
+        this.city = city.trim().substring(0, 1).toUpperCase() + city.trim().substring(1).toLowerCase();
     }
 
     private void displayWeather(WeatherRequest weatherRequest) {
@@ -127,7 +146,7 @@ public class DetailFragment extends Fragment {
         temperature.setText(String.valueOf(getCelsius(weatherRequest.getMain().getTemp())));
         pressure.setText(String.format("%d", weatherRequest.getMain().getPressure()));
         humidity.setText(String.format("%d", weatherRequest.getMain().getHumidity()));
-        windSpeed.setText(String.format("%d", weatherRequest.getWind().getSpeed()));
+        windSpeed.setText(String.format("%.2f", weatherRequest.getWind().getSpeed()));
         thermometerView.displayTemp(getCelsius(weatherRequest.getMain().getTemp()));
     }
 

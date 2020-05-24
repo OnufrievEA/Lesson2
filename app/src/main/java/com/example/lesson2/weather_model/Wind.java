@@ -1,13 +1,13 @@
 package com.example.lesson2.weather_model;
 
 public class Wind {
-    private int speed;
+    private float speed;
 
-    public int getSpeed() {
+    public float getSpeed() {
         return speed;
     }
 
-    public void setSpeed(int speed) {
+    public void setSpeed(float speed) {
         this.speed = speed;
     }
 }
