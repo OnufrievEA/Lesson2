@@ -1,47 +1,82 @@
 package com.example.lesson2;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.UnknownHostException;
+import android.util.Log;
 
-import javax.net.ssl.HttpsURLConnection;
+import com.example.lesson2.weather_model.WeatherRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class WeatherLoader {
 
+    private OpenWeather openWeather;
     private cityListener cityListener;
 
     interface cityListener {
         void negativeAction(String message);
+
+        void positiveAction(Response<WeatherRequest> response);
     }
 
     public void setCityListener(cityListener cityListener) {
         this.cityListener = cityListener;
     }
 
-    public BufferedReader getWeather(String url, final String cityErrorMsg, final String connectionErrorMsg) {
-        try {
-            final URL uri = new URL(url);
-            HttpsURLConnection urlConnection = null;
-            try {
-                urlConnection = (HttpsURLConnection) uri.openConnection();
-                urlConnection.setRequestMethod("GET"); // установка метода получения данных -GET
-                urlConnection.setReadTimeout(10000); // установка таймаута - 10 000 миллисекунд
-                BufferedReader resBufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                return resBufferedReader;
-            } catch (UnknownHostException e) {
-                cityListener.negativeAction(connectionErrorMsg);
-            } catch (IOException e) {
-                cityListener.negativeAction(cityErrorMsg);
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-            }
-        } catch (MalformedURLException e) {
-        }
-        return null;
+    public void getWeather(String city, String apikey, String cityErrorMsg, String connectionsErrorMsg) {
+        initRetorfit();
+        requestRetrofit(city, apikey, cityErrorMsg, connectionsErrorMsg);
+    }
+
+    private void initRetorfit() {
+        Retrofit retrofit;
+        retrofit = new Retrofit.Builder()
+                .baseUrl("http://api.openweathermap.org/") // Базовая часть
+                // адреса
+                // Конвертер, необходимый для преобразования JSON
+                // в объекты
+                .addConverterFactory(GsonConverterFactory.create()).build();
+        // Создаём объект, при помощи которого будем выполнять запросы
+        openWeather = retrofit.create(OpenWeather.class);
+    }
+
+    private void requestRetrofit(String city, String keyApi, String cityErrorMsg, String connectionsErrorMsg) {
+        openWeather.loadWeather(city, keyApi)
+                .enqueue(new Callback<WeatherRequest>() {
+                    @Override
+                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+                        if (response.body() != null && response.isSuccessful() && cityListener != null) {
+                            cityListener.positiveAction(response);
+                            Log.i("MYTAG", "OK");
+                        }
+                        if (!response.isSuccessful() && response.errorBody() != null) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response.errorBody().string());
+                                String error = jsonObject.getString("message");
+                                if (error.equals("city not found")) {
+                                    cityListener.negativeAction(cityErrorMsg);
+                                } else {
+                                    cityListener.negativeAction(error);
+                                }
+
+                            } catch (IOException | JSONException e) {
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                        if(cityListener != null){
+                            cityListener.negativeAction(connectionsErrorMsg);
+                        }
+                    }
+                });
     }
 }

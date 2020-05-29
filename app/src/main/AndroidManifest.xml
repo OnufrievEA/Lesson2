@@ -10,7 +10,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppDarkTheme">
+        android:theme="@style/AppDarkTheme"
+        android:usesCleartextTraffic="true">
         <activity android:name=".FeedbackActivity"></activity>
         <activity android:name=".HelpActivity" />
         <activity android:name=".BaseActivity" />
