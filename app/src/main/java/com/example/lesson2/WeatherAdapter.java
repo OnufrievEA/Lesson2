@@ -1,5 +1,9 @@
 package com.example.lesson2;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lesson2.data.Weather;
 import com.example.lesson2.data.WeatherSource;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHolder> {
 
@@ -53,7 +59,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
         public void setData(String weekDay, String date, int picture, String dayTemp, String nightTemp, String description) {
             getWeekDay().setText(weekDay);
             getDate().setText(date);
-            getPicture().setImageResource(picture);
+            Picasso.get().load(picture).into(getPicture());
             getdayTemp().setText(dayTemp);
             getNightTemp().setText(nightTemp);
             getDescription().setText(description);
@@ -119,5 +125,32 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
     @Override
     public int getItemCount() {
         return dataSource.getSize();
+    }
+
+    class CircleTransformation implements Transformation {
+
+        @Override
+        public Bitmap transform(Bitmap source) {
+            Path path = new Path();
+            // ...как круг
+            path.addCircle(source.getWidth() / 2, source.getHeight() / 2, source.getWidth() / 2, Path.Direction.CCW);
+            // Создаём битмап, который и будет результирующим
+            Bitmap answerBitMap = Bitmap.createBitmap(source.getWidth(), source.getHeight(), Bitmap.Config.ARGB_8888);
+            // Создаём холст для нового битмапа
+            Canvas canvas = new Canvas(answerBitMap);
+            // Обрезаем холст по кругу (по шаблону)
+            canvas.clipPath(path);
+            // А теперь рисуем на этом холсте исходное изображение
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            canvas.drawBitmap(source, 0, 0, paint);
+            source.recycle();
+            return answerBitMap;
+
+        }
+
+        @Override
+        public String key() {
+            return "circle";
+        }
     }
 }

@@ -23,15 +23,17 @@ import retrofit2.Response;
 
 public class DetailFragment extends Fragment {
 
-
     private static final String CITY = "city";
+    private static final String TEMPERATURE = "TEMPERATURE";
     private static String city;
+    private static int Temperature;
     private static final String WEATHER_API_KEY = "ee84ad36add2f9b733e58aac7389c3e8";
 
     private String cityErrorMsg;
     private String connectionErrorMsg;
 
     private Button refresh;
+    private ThermometerView thermometerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,6 +45,7 @@ public class DetailFragment extends Fragment {
 
         if (savedInstanceState != null) {
             this.city = savedInstanceState.getString(CITY);
+            this.Temperature = savedInstanceState.getInt(TEMPERATURE);
         }
 
         cityErrorMsg = getString(R.string.city_error);
@@ -56,7 +59,10 @@ public class DetailFragment extends Fragment {
         cityTV.setText(city);
         refresh = v.findViewById(R.id.refresh);
         refresh.setOnClickListener(clickListener);
+        thermometerView = v.findViewById(R.id.myTherm);
     }
+
+
 
     View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
@@ -114,7 +120,8 @@ public class DetailFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putString("city", city);
+        outState.putString(CITY, city);
+        outState.putInt("TEMPERATURE", Temperature);
     }
 
     public void setCity(String city) {
@@ -128,13 +135,17 @@ public class DetailFragment extends Fragment {
             EditText pressure = view.findViewById(R.id.textPressure);
             EditText humidity = view.findViewById(R.id.textHumidity);
             EditText windSpeed = view.findViewById(R.id.textWindspeed);
-            ThermometerView thermometerView = view.findViewById(R.id.myTherm);
             temperature.setText(String.valueOf(getCelsius(response.body().getMain().getTemp())));
             pressure.setText(String.format("%d", response.body().getMain().getPressure()));
             humidity.setText(String.format("%d", response.body().getMain().getHumidity()));
             windSpeed.setText(String.format("%.2f", response.body().getWind().getSpeed()));
-            thermometerView.displayTemp(getCelsius(response.body().getMain().getTemp()));
+            Temperature = getCelsius(response.body().getMain().getTemp());
+            displayTemperature(response, thermometerView);
         }
+    }
+
+    private void displayTemperature(Response<WeatherRequest> response, ThermometerView thermometerView) {
+        thermometerView.displayTemp(Temperature);
     }
 
     private int getCelsius(float kelvin) {
