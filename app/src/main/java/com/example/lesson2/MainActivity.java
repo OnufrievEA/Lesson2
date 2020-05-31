@@ -46,19 +46,20 @@ public class MainActivity extends BaseActivity implements CityFragment.Listener,
 
     @Override
     public void onContinueBtnClicked(String city) {
+        String correctCity = capitaliseCity(city);
         if (fragmentContainer != null) {
             DetailFragment detailFragment = new DetailFragment();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            detailFragment.setCity(city);
             ft.replace(R.id.fragment_container, detailFragment);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.addToBackStack(null);
             ft.commit();
         } else {
             Intent intent = new Intent(MainActivity.this, WeatherActivity.class);
-            intent.putExtra(WeatherActivity.CITY, city);
+            intent.putExtra(WeatherActivity.CITY, correctCity);
             startActivityForResult(intent, SETTING_CODE);
         }
+        saveCurrentCity(correctCity);
     }
 
     @Override
@@ -105,5 +106,9 @@ public class MainActivity extends BaseActivity implements CityFragment.Listener,
         } else {
             super.onBackPressed();
         }
+    }
+
+    public String capitaliseCity(String city) {
+        return city.trim().substring(0, 1).toUpperCase() + city.trim().substring(1).toLowerCase();
     }
 }

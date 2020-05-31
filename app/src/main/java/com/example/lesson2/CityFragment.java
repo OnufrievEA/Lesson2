@@ -17,7 +17,7 @@ import com.google.android.material.textfield.TextInputLayout;
 public class CityFragment extends Fragment {
 
     private static final String CITY = "city";
-    private String city = "Москва";
+    private String city;
 
     private Listener listener;
 
@@ -46,9 +46,6 @@ public class CityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            city = savedInstanceState.getString(CITY);
-        }
         View result = inflater.inflate(R.layout.fragment_city, container, false);
         cityLayout = result.findViewById(R.id.cityContainer);
         cityEt = result.findViewById(R.id.cityET);
@@ -63,8 +60,8 @@ public class CityFragment extends Fragment {
         if (view != null && listener != null) {
             continueBtn = view.findViewById(R.id.continueBtn);
             cityEt = view.findViewById(R.id.cityET);
+            city = ((MainActivity)getActivity()).loadCurrentCity();
             cityEt.setText(city);
-            city = String.valueOf(cityEt.getText());
             continueBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

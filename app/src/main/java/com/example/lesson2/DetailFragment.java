@@ -125,7 +125,7 @@ public class DetailFragment extends Fragment {
     }
 
     public void setCity(String city) {
-        this.city = city.trim().substring(0, 1).toUpperCase() + city.trim().substring(1).toLowerCase();
+        this.city = city;
     }
 
     private void displayWeather(Response<WeatherRequest> response) {
