@@ -49,6 +49,7 @@ public class MainActivity extends BaseActivity implements CityFragment.Listener,
         String correctCity = capitaliseCity(city);
         if (fragmentContainer != null) {
             DetailFragment detailFragment = new DetailFragment();
+            detailFragment.setCity(correctCity);
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.fragment_container, detailFragment);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);

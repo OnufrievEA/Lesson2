@@ -17,9 +17,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class WeatherLoader {
 
+    OpenWeather openWeather;
     Retrofit retrofit;
-
-    private OpenWeather openWeather;
     private cityListener cityListener;
 
     interface cityListener {
@@ -45,8 +44,8 @@ public class WeatherLoader {
                     // Конвертер, необходимый для преобразования JSON
                     // в объекты
                     .addConverterFactory(GsonConverterFactory.create()).build();
-            // Создаём объект, при помощи которого будем выполнять запросы
         }
+        // Создаём объект, при помощи которого будем выполнять запросы
         openWeather = retrofit.create(OpenWeather.class);
     }
 
