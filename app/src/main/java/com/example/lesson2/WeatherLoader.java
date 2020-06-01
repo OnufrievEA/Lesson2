@@ -17,6 +17,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class WeatherLoader {
 
+    Retrofit retrofit;
+
     private OpenWeather openWeather;
     private cityListener cityListener;
 
@@ -36,14 +38,15 @@ public class WeatherLoader {
     }
 
     private void initRetorfit() {
-        Retrofit retrofit;
-        retrofit = new Retrofit.Builder()
-                .baseUrl("http://api.openweathermap.org/") // Базовая часть
-                // адреса
-                // Конвертер, необходимый для преобразования JSON
-                // в объекты
-                .addConverterFactory(GsonConverterFactory.create()).build();
-        // Создаём объект, при помощи которого будем выполнять запросы
+        if (retrofit == null) {
+            retrofit = new Retrofit.Builder()
+                    .baseUrl("http://api.openweathermap.org/") // Базовая часть
+                    // адреса
+                    // Конвертер, необходимый для преобразования JSON
+                    // в объекты
+                    .addConverterFactory(GsonConverterFactory.create()).build();
+            // Создаём объект, при помощи которого будем выполнять запросы
+        }
         openWeather = retrofit.create(OpenWeather.class);
     }
 
@@ -73,7 +76,7 @@ public class WeatherLoader {
 
                     @Override
                     public void onFailure(Call<WeatherRequest> call, Throwable t) {
-                        if(cityListener != null){
+                        if (cityListener != null) {
                             cityListener.negativeAction(connectionsErrorMsg);
                         }
                     }
