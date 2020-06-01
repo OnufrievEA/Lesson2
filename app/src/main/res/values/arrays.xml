@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string-array name="weekDays">
+        <item>"Сегодня"</item>
+        <item>"ВТ"</item>
+        <item>"СР"</item>
+        <item>"ЧТ"</item>
+        <item>"ПТ"</item>
+        <item>"СБ"</item>
+    </string-array>
+    <string-array name="dates">
+        <item>"1 мая"</item>
+        <item>"2 мая"</item>
+        <item>"3 мая"</item>
+        <item>"4 мая"</item>
+        <item>"5 мая"</item>
+        <item>"6 мая"</item>
+    </string-array>
+    <string-array name="descriptions">
+        <item>"Ясно"</item>
+        <item>"Небольшой дождь"</item>
+        <item>"Дождь"</item>
+        <item>"Гроза"</item>
+        <item>"Ливень с грозой"</item>
+        <item>"Пасмурно"</item>
+    </string-array>
+    <array name="pictures">
+        <item>@drawable/iconfinder_sunny_01_1221018</item>
+        <item>@drawable/iconfinder_lightrain_01_1221023</item>
+        <item>@drawable/iconfinder_rainnyday_01_1221019</item>
+        <item>@drawable/iconfinder_thunderstorm_01_1221017</item>
+        <item>@drawable/iconfinder_thunderstorm_ranny_1221016</item>
+        <item>@drawable/iconfinder_rainnyday_1221020</item>
+    </array>
+    <string-array name="dayTemperatures">
+        <item>"21"</item>
+        <item>"20"</item>
+        <item>"19"</item>
+        <item>"15"</item>
+        <item>"15"</item>
+        <item>"23"</item>
+    </string-array>
+    <string-array name="nightTemperatures">
+        <item>"15"</item>
+        <item>"15"</item>
+        <item>"14"</item>
+        <item>"12"</item>
+        <item>"13"</item>
+        <item>"16"</item>
+    </string-array>
+</resources>
