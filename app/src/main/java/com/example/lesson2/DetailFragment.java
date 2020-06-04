@@ -1,22 +1,33 @@
 package com.example.lesson2;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lesson2.data.WeatherSource;
+import com.example.lesson2.databaseHelper.DatabaseHelper;
 import com.example.lesson2.weather_model.WeatherRequest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Response;
 
@@ -25,31 +36,53 @@ public class DetailFragment extends Fragment {
 
     private static final String CITY = "city";
     private static final String TEMPERATURE = "TEMPERATURE";
-    private static String city;
+    private String city;
     private static int Temperature;
     private static final String WEATHER_API_KEY = "ee84ad36add2f9b733e58aac7389c3e8";
 
-    private String cityErrorMsg;
-    private String connectionErrorMsg;
-
-    private Button refresh;
+    private CheckBox favorite;
+    private boolean isFavorite;
     private ThermometerView thermometerView;
+
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        init(getView());
+
+        SQLiteOpenHelper databaseHelper = new DatabaseHelper(getActivity());
+        try {
+            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+            Cursor cursor = db.query("CITIES",
+                    new String[]{"CITY"},
+                    null, null, null, null, null);
+            List<String> favoriteCities = new ArrayList<>();
+            for (int i = 0; i < cursor.getCount(); i++) {
+                cursor.moveToPosition(i);
+                favoriteCities.add(cursor.getString(0));
+            }
+            if (favoriteCities.contains(city)) {
+                isFavorite = true;
+            }
+            favorite.setChecked(isFavorite);
+        } catch (SQLException e) {
+            Toast.makeText(getActivity(), "Database unavailable", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View resView = inflater.inflate(R.layout.fragment_detail, container, false);
 
-        WeatherSource sourceData = new WeatherSource(getResources());
-        initRecyclerView(resView, sourceData.initData());
-
         if (savedInstanceState != null) {
             this.city = savedInstanceState.getString(CITY);
             this.Temperature = savedInstanceState.getInt(TEMPERATURE);
         }
 
-        cityErrorMsg = getString(R.string.city_error);
-        connectionErrorMsg = getString(R.string.connection_error);
+        WeatherSource sourceData = new WeatherSource(getResources());
+        initRecyclerView(resView, sourceData.initData());
 
         return resView;
     }
@@ -57,11 +90,12 @@ public class DetailFragment extends Fragment {
     private void init(View v) {
         TextView cityTV = v.findViewById(R.id.cityTV);
         cityTV.setText(city);
-        refresh = v.findViewById(R.id.refresh);
+        Button refresh = v.findViewById(R.id.refresh);
         refresh.setOnClickListener(clickListener);
         thermometerView = v.findViewById(R.id.myTherm);
+        favorite = v.findViewById(R.id.favorite);
+        favorite.setOnClickListener(cbClickListener);
     }
-
 
 
     View.OnClickListener clickListener = new View.OnClickListener() {
@@ -78,11 +112,42 @@ public class DetailFragment extends Fragment {
                 }
 
                 @Override
-                public  void positiveAction(Response<WeatherRequest> response) {
+                public void positiveAction(Response<WeatherRequest> response) {
                     displayWeather(response);
                 }
             });
-            weatherLoader.getWeather(city, WEATHER_API_KEY, cityErrorMsg, connectionErrorMsg);
+            weatherLoader.getWeather(city, WEATHER_API_KEY, getString(R.string.city_error), getString(R.string.connection_error));
+        }
+    };
+
+    View.OnClickListener cbClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(!isFavorite){
+                ContentValues favoriteCity = new ContentValues();
+                favoriteCity.put("CITY", city);
+
+                SQLiteOpenHelper databaseHelper = new DatabaseHelper(getActivity());
+                try {
+                    SQLiteDatabase db = databaseHelper.getWritableDatabase();
+                    db.insert("CITIES",
+                            null,
+                            favoriteCity);
+                } catch (SQLException e) {
+                    Toast.makeText(getActivity(), "Database unavailable", Toast.LENGTH_SHORT).show();
+                }
+            } else{
+                SQLiteOpenHelper databaseHelper = new DatabaseHelper(getActivity());
+                try {
+                    SQLiteDatabase db = databaseHelper.getWritableDatabase();
+                    db.delete("CITIES",
+                            "CITY = ?",
+                            new String[]{city});
+                } catch (SQLException e) {
+                    Toast.makeText(getActivity(), "Database unavailable", Toast.LENGTH_SHORT).show();
+                }
+            }
+
         }
     };
 
@@ -107,15 +172,6 @@ public class DetailFragment extends Fragment {
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getActivity(), LinearLayoutManager.HORIZONTAL);
         itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator));
         weatherRecycler.addItemDecoration(itemDecoration);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        View view = getView();
-        if (view != null) {
-            init(view);
-        }
     }
 
     @Override

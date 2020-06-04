@@ -25,4 +25,6 @@
     <string name="error">Ошибка</string>
     <string name="city_error">Нет такого города</string>
     <string name="connection_error">Ошибка соединения</string>
+    <string name="favorite">Избранное</string>
+    <string name="favorites">Избранные города</string>
 </resources>

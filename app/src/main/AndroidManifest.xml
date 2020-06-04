@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.lesson2">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -12,7 +13,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppDarkTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".FeedbackActivity"></activity>
+        <receiver
+            android:name=".receivers.BatteryChangeReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
+        <receiver
+            android:name=".receivers.NetworkChangeReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".FeedbackActivity" />
         <activity android:name=".HelpActivity" />
         <activity android:name=".BaseActivity" />
         <activity android:name=".WeatherActivity" />
@@ -23,6 +33,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

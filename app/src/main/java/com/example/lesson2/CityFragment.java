@@ -1,15 +1,24 @@
 package com.example.lesson2;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CursorAdapter;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.lesson2.databaseHelper.DatabaseHelper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -24,6 +33,7 @@ public class CityFragment extends Fragment {
     private TextInputLayout cityLayout;
     private TextInputEditText cityEt;
     private MaterialButton continueBtn;
+    private ListView listFavorites;
 
     interface Listener {
         void onContinueBtnClicked(String city);
@@ -49,6 +59,7 @@ public class CityFragment extends Fragment {
         View result = inflater.inflate(R.layout.fragment_city, container, false);
         cityLayout = result.findViewById(R.id.cityContainer);
         cityEt = result.findViewById(R.id.cityET);
+        listFavorites = result.findViewById(R.id.list_favorites);
         return result;
     }
 
@@ -60,7 +71,7 @@ public class CityFragment extends Fragment {
         if (view != null && listener != null) {
             continueBtn = view.findViewById(R.id.continueBtn);
             cityEt = view.findViewById(R.id.cityET);
-            city = ((MainActivity)getActivity()).loadCurrentCity();
+            city = ((MainActivity) getActivity()).loadCurrentCity();
             cityEt.setText(city);
             continueBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -70,6 +81,7 @@ public class CityFragment extends Fragment {
                     }
                 }
             });
+            setupFavoritesListView();
         }
     }
 
@@ -87,6 +99,25 @@ public class CityFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         city = String.valueOf(cityEt.getText());
         outState.putString(CITY, city);
+    }
+
+    private void setupFavoritesListView() {
+        try {
+            SQLiteOpenHelper databaseHelper = new DatabaseHelper(getActivity());
+            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+            Cursor favoritesCursor = db.query("CITIES",
+                    new String[]{"_id", "CITY"},
+                    null, null, null, null, null);
+
+            SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(),
+                    android.R.layout.simple_list_item_1,
+                    favoritesCursor,
+                    new String[]{"CITY"},
+                    new int[]{android.R.id.text1}, 0);
+            listFavorites.setAdapter(adapter);
+        } catch (SQLException e) {
+            Toast.makeText(getActivity(), "Database unavailable", Toast.LENGTH_SHORT).show();
+        }
     }
 
 }
