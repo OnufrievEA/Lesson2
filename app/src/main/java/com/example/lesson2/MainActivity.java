@@ -2,6 +2,7 @@ package com.example.lesson2;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -13,12 +14,17 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 
 public class MainActivity extends BaseActivity implements CityFragment.Listener, NavigationView.OnNavigationItemSelectedListener {
 
-    private static final int SETTING_CODE = 88;
+    private final int SETTING_CODE = 88;
+    private final String PUSH_MESSAGE = "PushMessage";
 
     private View fragmentContainer;
 
@@ -42,6 +48,7 @@ public class MainActivity extends BaseActivity implements CityFragment.Listener,
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        initGetToken();
     }
 
     @Override
@@ -112,4 +119,21 @@ public class MainActivity extends BaseActivity implements CityFragment.Listener,
     public String capitaliseCity(String city) {
         return city.trim().substring(0, 1).toUpperCase() + city.trim().substring(1).toLowerCase();
     }
+
+    private void initGetToken() {
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(PUSH_MESSAGE, "getInstanceId failed", task.getException());
+                            return;
+                        }
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+                        Log.i(PUSH_MESSAGE, token);
+                    }
+                });
+    }
+
 }
