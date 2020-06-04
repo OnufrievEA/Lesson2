@@ -13,15 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppDarkTheme"
         android:usesCleartextTraffic="true">
-        <receiver
-            android:name=".receivers.BatteryChangeReceiver"
-            android:enabled="true"
-            android:exported="true"></receiver>
-        <receiver
-            android:name=".receivers.NetworkChangeReceiver"
-            android:enabled="true"
-            android:exported="true" />
-
         <activity android:name=".FeedbackActivity" />
         <activity android:name=".HelpActivity" />
         <activity android:name=".BaseActivity" />

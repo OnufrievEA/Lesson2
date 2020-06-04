@@ -1,16 +1,8 @@
 package com.example.lesson2;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +11,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.example.lesson2.receivers.NetworkChangeReceiver;
 import com.google.android.material.navigation.NavigationView;
 
 
@@ -28,15 +19,12 @@ public class WeatherActivity extends BaseActivity implements NavigationView.OnNa
     public static final String CITY = "city";
     private static String city;
     private static final int SETTING_CODE = 88;
-    private static BroadcastReceiver networkStateReceiver;
-    private Button refresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
 
-        refresh = findViewById(R.id.refresh);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -52,20 +40,12 @@ public class WeatherActivity extends BaseActivity implements NavigationView.OnNa
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         city = getIntent().getStringExtra(CITY);
-
-        initNotificationChannel();
 
         DetailFragment frag = (DetailFragment) getSupportFragmentManager().findFragmentById(R.id.detail_frag);
         frag.setCity(city);
-
-
-        networkStateReceiver = new NetworkChangeReceiver(refresh);
-
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(networkStateReceiver, filter);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -111,21 +91,5 @@ public class WeatherActivity extends BaseActivity implements NavigationView.OnNa
         } else {
             super.onBackPressed();
         }
-    }
-
-    private void initNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            int importance = NotificationManager.IMPORTANCE_LOW;
-            NotificationChannel channel = new NotificationChannel("2", "name", importance);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(networkStateReceiver);
     }
 }

@@ -13,31 +13,20 @@ import com.example.lesson2.R;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
-    Button button;
-
-    public NetworkChangeReceiver() {
-    }
-
-    public NetworkChangeReceiver(Button button) {
-        this.button = button;
-    }
+    private final int ID = 1;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationCompat.Builder builder;
         if (NetworkUtil.getConnectivityStatus(context)) {
-            button.setEnabled(true);
-            notificationManager.cancelAll();
+            notificationManager.cancel(ID);
         } else {
-            button.setEnabled(false);
-            builder = new NotificationCompat.Builder(context, "2")
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, String.valueOf(ID))
                     .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("Broadcast Receiver")
-                    .setContentText("Сеть пропала");
-            notificationManager.notify(1, builder.build());
+                    .setContentTitle("NetworkMessage")
+                    .setContentText("Соединение отсутствует");
+            notificationManager.notify(ID, builder.build());
         }
     }
-
 }
