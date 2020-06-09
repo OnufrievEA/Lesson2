@@ -1,7 +1,5 @@
 package com.example.lesson2;
 
-import android.util.Log;
-
 import com.example.lesson2.weather_model.WeatherRequest;
 
 import org.json.JSONException;
@@ -33,7 +31,12 @@ public class WeatherLoader {
 
     public void getWeather(String city, String apikey, String cityErrorMsg, String connectionsErrorMsg) {
         initRetorfit();
-        requestRetrofit(city, apikey, cityErrorMsg, connectionsErrorMsg);
+        requestRetrofitByCity(city, apikey, cityErrorMsg, connectionsErrorMsg);
+    }
+
+    public void getWeather(double lat, double lng, String apikey, String cityErrorMsg, String connectionsErrorMsg) {
+        initRetorfit();
+        requestRetrofitByCoords(lat, lng, apikey, cityErrorMsg, connectionsErrorMsg);
     }
 
     private void initRetorfit() {
@@ -49,14 +52,45 @@ public class WeatherLoader {
         openWeather = retrofit.create(OpenWeather.class);
     }
 
-    private void requestRetrofit(String city, String keyApi, String cityErrorMsg, String connectionsErrorMsg) {
-        openWeather.loadWeather(city, keyApi)
+    private void requestRetrofitByCity(String city, String keyApi, String cityErrorMsg, String connectionsErrorMsg) {
+        openWeather.loadWeatherByCity(city, keyApi)
                 .enqueue(new Callback<WeatherRequest>() {
                     @Override
                     public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
                         if (response.body() != null && response.isSuccessful() && cityListener != null) {
                             cityListener.positiveAction(response);
-                            Log.i("MYTAG", "OK");
+                        }
+                        if (!response.isSuccessful() && response.errorBody() != null) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response.errorBody().string());
+                                String error = jsonObject.getString("message");
+                                if (error.equals("city not found")) {
+                                    cityListener.negativeAction(cityErrorMsg);
+                                } else {
+                                    cityListener.negativeAction(error);
+                                }
+
+                            } catch (IOException | JSONException e) {
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                        if (cityListener != null) {
+                            cityListener.negativeAction(connectionsErrorMsg);
+                        }
+                    }
+                });
+    }
+
+    private void requestRetrofitByCoords(double lat, double lng, String keyApi, String cityErrorMsg, String connectionsErrorMsg) {
+        openWeather.loadWeatherByCoords(lat, lng, keyApi)
+                .enqueue(new Callback<WeatherRequest>() {
+                    @Override
+                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+                        if (response.body() != null && response.isSuccessful() && cityListener != null) {
+                            cityListener.positiveAction(response);
                         }
                         if (!response.isSuccessful() && response.errorBody() != null) {
                             try {

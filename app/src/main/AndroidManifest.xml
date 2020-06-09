@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.lesson2">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -13,6 +15,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppDarkTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".MapActivity"></activity>
+
         <service
             android:name=".MyFirebaseMessagingService"
             android:enabled="true"
@@ -21,6 +25,9 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
 
         <activity android:name=".FeedbackActivity" />
         <activity android:name=".HelpActivity" />
@@ -37,6 +44,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
     </application>
 
 </manifest>

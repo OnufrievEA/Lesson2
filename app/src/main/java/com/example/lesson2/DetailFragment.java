@@ -36,13 +36,20 @@ public class DetailFragment extends Fragment {
 
     private static final String CITY = "city";
     private static final String TEMPERATURE = "TEMPERATURE";
+    private static final String AUTOGETWEATHER = "AUTOGETWEATHER";
+    private static final String LAT = "LAT";
+    private static final String LNG = "LNG";
     private String city;
+    private double lat;
+    private double lng;
     private static int Temperature;
     private static final String WEATHER_API_KEY = "ee84ad36add2f9b733e58aac7389c3e8";
 
+    private Button refresh;
     private CheckBox favorite;
     private boolean isFavorite;
     private ThermometerView thermometerView;
+    private boolean autoGetWeather = false;
 
 
     @Override
@@ -69,6 +76,9 @@ public class DetailFragment extends Fragment {
         } catch (SQLException e) {
             Toast.makeText(getActivity(), "Database unavailable", Toast.LENGTH_SHORT).show();
         }
+        if (autoGetWeather) {
+            refresh.callOnClick();
+        }
     }
 
     @Override
@@ -79,6 +89,9 @@ public class DetailFragment extends Fragment {
         if (savedInstanceState != null) {
             this.city = savedInstanceState.getString(CITY);
             this.Temperature = savedInstanceState.getInt(TEMPERATURE);
+            this.autoGetWeather = savedInstanceState.getBoolean(AUTOGETWEATHER);
+            this.lat = savedInstanceState.getFloat(LAT);
+            this.lng = savedInstanceState.getFloat(LNG);
         }
 
         WeatherSource sourceData = new WeatherSource(getResources());
@@ -90,7 +103,7 @@ public class DetailFragment extends Fragment {
     private void init(View v) {
         TextView cityTV = v.findViewById(R.id.cityTV);
         cityTV.setText(city);
-        Button refresh = v.findViewById(R.id.refresh);
+        refresh = v.findViewById(R.id.refresh);
         refresh.setOnClickListener(clickListener);
         thermometerView = v.findViewById(R.id.myTherm);
         favorite = v.findViewById(R.id.favorite);
@@ -116,14 +129,18 @@ public class DetailFragment extends Fragment {
                     displayWeather(response);
                 }
             });
-            weatherLoader.getWeather(city, WEATHER_API_KEY, getString(R.string.city_error), getString(R.string.connection_error));
+            if (autoGetWeather) {
+                weatherLoader.getWeather(lat, lng, WEATHER_API_KEY, getString(R.string.city_error), getString(R.string.connection_error));
+            } else {
+                weatherLoader.getWeather(city, WEATHER_API_KEY, getString(R.string.city_error), getString(R.string.connection_error));
+            }
         }
     };
 
     View.OnClickListener cbClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(!isFavorite){
+            if (!isFavorite) {
                 ContentValues favoriteCity = new ContentValues();
                 favoriteCity.put("CITY", city);
 
@@ -136,7 +153,7 @@ public class DetailFragment extends Fragment {
                 } catch (SQLException e) {
                     Toast.makeText(getActivity(), "Database unavailable", Toast.LENGTH_SHORT).show();
                 }
-            } else{
+            } else {
                 SQLiteOpenHelper databaseHelper = new DatabaseHelper(getActivity());
                 try {
                     SQLiteDatabase db = databaseHelper.getWritableDatabase();
@@ -177,7 +194,10 @@ public class DetailFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString(CITY, city);
-        outState.putInt("TEMPERATURE", Temperature);
+        outState.putInt(TEMPERATURE, Temperature);
+        outState.putBoolean(AUTOGETWEATHER, autoGetWeather);
+        outState.putDouble(LAT, lat);
+        outState.putDouble(LNG, lng);
     }
 
     public void setCity(String city) {
@@ -206,5 +226,14 @@ public class DetailFragment extends Fragment {
 
     private int getCelsius(float kelvin) {
         return (int) (kelvin - 273.15);
+    }
+
+    public void setWeatherFlag(boolean b) {
+        autoGetWeather = b;
+    }
+
+    public void setCoords(double lat, double lng) {
+        this.lat = lat;
+        this.lng = lng;
     }
 }

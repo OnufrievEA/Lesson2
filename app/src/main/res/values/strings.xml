@@ -27,4 +27,6 @@
     <string name="connection_error">Ошибка соединения</string>
     <string name="favorite">Избранное</string>
     <string name="favorites">Избранные города</string>
+    <string name="get_weather">Узнать погоду</string>
+    <string name="weather_on_map">Погода на карте</string>
 </resources>

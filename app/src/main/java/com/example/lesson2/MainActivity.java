@@ -1,7 +1,14 @@
 package com.example.lesson2;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentTransaction;
@@ -23,8 +31,12 @@ import com.google.firebase.iid.InstanceIdResult;
 
 public class MainActivity extends BaseActivity implements CityFragment.Listener, NavigationView.OnNavigationItemSelectedListener {
 
+    private static final int PERMISSION_REQUEST_CODE = 10;
+
     private final int SETTING_CODE = 88;
     private final String PUSH_MESSAGE = "PushMessage";
+    private double lat;
+    private double lng;
 
     private View fragmentContainer;
 
@@ -71,6 +83,11 @@ public class MainActivity extends BaseActivity implements CityFragment.Listener,
     }
 
     @Override
+    public void onWeatherBtnClicked() {
+        requestPemissions();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SETTING_CODE) {
@@ -94,6 +111,9 @@ public class MainActivity extends BaseActivity implements CityFragment.Listener,
                 break;
             case R.id.nav_feedback:
                 intent = new Intent(this, FeedbackActivity.class);
+                break;
+            case R.id.nav_map:
+                intent = new Intent(this, MapActivity.class);
                 break;
         }
 
@@ -136,4 +156,108 @@ public class MainActivity extends BaseActivity implements CityFragment.Listener,
                 });
     }
 
+    // Запрашиваем Permission’ы
+    private void requestPemissions() {
+        // Проверим, есть ли Permission’ы, и если их нет, запрашиваем их у
+        // пользователя
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            // Запрашиваем координаты
+            requestLocation();
+        } else {
+            // Permission’ов нет, запрашиваем их у пользователя
+            requestLocationPermissions();
+        }
+    }
+
+    private void requestLocation() {
+
+        // Если Permission’а всё- таки нет, просто выходим: приложение не имеет
+        // смысла
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            return;
+        // Получаем менеджер геолокаций
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+
+        // Получаем наиболее подходящий провайдер геолокации по критериям.
+        // Но определить, какой провайдер использовать, можно и самостоятельно.
+        // В основном используются LocationManager.GPS_PROVIDER или
+        // LocationManager.NETWORK_PROVIDER, но можно использовать и
+        // LocationManager.PASSIVE_PROVIDER - для получения координат в
+        // пассивном режиме
+        String provider = locationManager.getBestProvider(criteria, true);
+        if (provider != null) {
+            locationManager.requestSingleUpdate(provider, new LocationListener() {
+
+                @Override
+                public void onLocationChanged(Location location) {
+                    Log.i("GEO", Thread.currentThread().getName());
+                    lat = location.getLatitude(); // Широта
+                    lng = location.getLongitude(); // Долгота
+
+                    if (fragmentContainer != null) {
+                        DetailFragment detailFragment = new DetailFragment();
+                        detailFragment.setCity("Текущее местоположение");
+                        detailFragment.setWeatherFlag(true);
+                        detailFragment.setCoords(lat, lng);
+                        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                        ft.replace(R.id.fragment_container, detailFragment);
+                        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                        ft.addToBackStack(null);
+                        ft.commit();
+                    } else {
+                        Intent intent = new Intent(MainActivity.this, WeatherActivity.class);
+                        intent.putExtra(WeatherActivity.CITY, "Текущее местоположение");
+                        intent.putExtra(WeatherActivity.AUTOGETWEATHER, true);
+                        intent.putExtra(WeatherActivity.LAT, lat);
+                        intent.putExtra(WeatherActivity.LNG, lng);
+                        startActivityForResult(intent, SETTING_CODE);
+                    }
+                }
+
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+
+                }
+
+                @Override
+                public void onProviderEnabled(String provider) {
+
+                }
+
+                @Override
+                public void onProviderDisabled(String provider) {
+
+                }
+            }, null);
+        }
+    }
+
+    // Запрашиваем Permission’ы для геолокации
+    private void requestLocationPermissions() {
+        // Запрашиваем эти два Permission’а у пользователя
+        ActivityCompat.requestPermissions(this,
+                new String[]{
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                },
+                PERMISSION_REQUEST_CODE);
+    }
+
+    // Результат запроса Permission’а у пользователя:
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_CODE) {   // Запрошенный нами
+            // Permission
+            if (grantResults.length == 2 &&
+                    (grantResults[0] == PackageManager.PERMISSION_GRANTED || grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
+                // Все препоны пройдены и пермиссия дана
+                // Запросим координаты
+                requestLocation();
+            }
+        }
+    }
 }

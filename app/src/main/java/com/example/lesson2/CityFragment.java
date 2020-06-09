@@ -32,10 +32,12 @@ public class CityFragment extends Fragment {
     private TextInputLayout cityLayout;
     private TextInputEditText cityEt;
     private MaterialButton continueBtn;
+    private MaterialButton weatherBtn;
     private ListView listFavorites;
 
     interface Listener {
         void onContinueBtnClicked(String city);
+        void onWeatherBtnClicked();
     }
 
     @Override
@@ -69,6 +71,7 @@ public class CityFragment extends Fragment {
         View view = getView();
         if (view != null && listener != null) {
             continueBtn = view.findViewById(R.id.continueBtn);
+            weatherBtn = view.findViewById(R.id.weatherBtn);
             cityEt = view.findViewById(R.id.cityET);
             city = ((MainActivity) getActivity()).loadCurrentCity();
             cityEt.setText(city);
@@ -80,6 +83,13 @@ public class CityFragment extends Fragment {
                     }
                 }
             });
+            weatherBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onWeatherBtnClicked();
+                }
+            });
+
             setupFavoritesListView();
         }
     }

@@ -17,8 +17,14 @@ import com.google.android.material.navigation.NavigationView;
 public class WeatherActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String CITY = "city";
+    public static final String AUTOGETWEATHER = "AUTOGETWEATHER";
+    public static final String LAT = "LAT";
+    public static final String LNG = "LNG";
     private static String city;
+    private double lat;
+    private double lng;
     private static final int SETTING_CODE = 88;
+    private boolean autoGetWeather = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +47,14 @@ public class WeatherActivity extends BaseActivity implements NavigationView.OnNa
         navigationView.setNavigationItemSelectedListener(this);
 
         city = getIntent().getStringExtra(CITY);
+        autoGetWeather = getIntent().getBooleanExtra(AUTOGETWEATHER, false);
+        lat = getIntent().getDoubleExtra(LAT, 0);
+        lng = getIntent().getDoubleExtra(LNG, 0);
 
         DetailFragment frag = (DetailFragment) getSupportFragmentManager().findFragmentById(R.id.detail_frag);
         frag.setCity(city);
+        frag.setCoords(lat, lng);
+        frag.setWeatherFlag(autoGetWeather);
     }
 
 
